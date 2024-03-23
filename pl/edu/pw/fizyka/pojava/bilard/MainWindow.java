@@ -10,6 +10,7 @@ public class MainWindow extends JFrame{
     JMenuItem item = new JMenuItem();
     JSlider strokePowerRegulation = new JSlider();
     JPanel bottomPanel = new JPanel();
+
     public MainWindow() throws HeadlessException {
         this.setSize(640, 360);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
