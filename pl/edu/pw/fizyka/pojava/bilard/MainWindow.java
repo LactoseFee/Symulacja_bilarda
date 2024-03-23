@@ -5,19 +5,59 @@ import java.awt.*;
 
 public class MainWindow extends JFrame{
 
-    JMenuBar menuBar = new JMenuBar();
-    JMenu menu = new JMenu("Menu");
-    JMenuItem item = new JMenuItem();
-    JSlider strokePowerRegulation = new JSlider();
+    //Panels
+    PoolTablePanel poolPanel = new PoolTablePanel();
+    JPanel sliderPanel = new JPanel(new BorderLayout(10, 10));
     JPanel bottomPanel = new JPanel();
+
+    //Menus
+    JMenuBar menuBar = new JMenuBar();
+    JMenu optionsMenu = new JMenu("Menu opcji");
+    JMenu gameMenu = new JMenu("Menu gry");
+
+    JMenuItem itemPreferences = new JMenuItem("Preferencje wyglądu gry");
+    JMenuItem itemLanguageVer = new JMenuItem("Wersja językowa");
+    JMenuItem itemInfo = new JMenuItem("Informacje o autorach");
+    JMenuItem itemSave = new JMenuItem("Zapisz grę");
+    JMenuItem itemLoad = new JMenuItem("Wczytaj poprzednią grę");
+    JMenuItem itemNewGame = new JMenuItem("Rozpocznij grę od początku");
+
+    //Cue stroke power slider
+    JSlider strokePowerRegulation = new JSlider(0,100);
+    JButton cueRelease = new JButton("Uderz");
+    JLabel strokePowerRegulationLabel = new JLabel("Siła uderzenia");
 
     public MainWindow() throws HeadlessException {
         this.setSize(640, 360);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
+        //Panels
+        this.add(poolPanel, BorderLayout.CENTER);
+        this.add(bottomPanel, BorderLayout.SOUTH);
+        this.add(sliderPanel, BorderLayout.WEST);
+
+        //Menus
         this.setJMenuBar(menuBar);
-        menuBar.add(menu);
-        menu.add(item);
+        menuBar.add(optionsMenu);
+        menuBar.add(gameMenu);
+
+        optionsMenu.add(itemPreferences);
+        optionsMenu.add(itemLanguageVer);
+        optionsMenu.add(itemInfo);
+        gameMenu.add(itemSave);
+        gameMenu.add(itemLoad);
+        gameMenu.add(itemNewGame);
+
+        //Cue stroke power slider
+        sliderPanel.add(strokePowerRegulation, BorderLayout.CENTER);
+        sliderPanel.add(strokePowerRegulationLabel, BorderLayout.NORTH);
+        sliderPanel.add(cueRelease, BorderLayout.SOUTH);
+        strokePowerRegulation.setOrientation(SwingConstants.VERTICAL);
+        strokePowerRegulation.setMajorTickSpacing(20);
+        strokePowerRegulation.setMinorTickSpacing(5);
+        strokePowerRegulation.setPaintTicks(true);
+        strokePowerRegulation.setPaintLabels(true);
+
     }
 
     public static void main(String[] args) {
