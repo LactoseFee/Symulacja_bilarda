@@ -2,6 +2,8 @@ package pl.edu.pw.fizyka.pojava.bilard;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.ImageProducer;
+import java.io.InputStream;
 
 public class MainWindow extends JFrame{
 
@@ -10,7 +12,7 @@ public class MainWindow extends JFrame{
     JPanel sliderPanel = new JPanel(new BorderLayout(10, 10));
     JPanel bottomPanel = new JPanel();
 
-    //Menus
+    //Menu
     JMenuBar menuBar = new JMenuBar();
     JMenu optionsMenu = new JMenu("Menu opcji");
     JMenu gameMenu = new JMenu("Menu gry");
@@ -27,8 +29,12 @@ public class MainWindow extends JFrame{
     JButton cueRelease = new JButton("Uderz");
     JLabel strokePowerRegulationLabel = new JLabel("Siła uderzenia");
 
+    //Bottom labels
+    JLabel firstPlayerPoints = new JLabel("Bile zdobyte przez Player1:\n");
+    JLabel secondPlayerPoints = new JLabel("Bile zdobyte przez Player2:\n");
+
     public MainWindow() throws HeadlessException {
-        this.setSize(640, 360);
+        this.setMinimumSize(new Dimension(800,600));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         //Panels
@@ -36,7 +42,7 @@ public class MainWindow extends JFrame{
         this.add(bottomPanel, BorderLayout.SOUTH);
         this.add(sliderPanel, BorderLayout.WEST);
 
-        //Menus
+        //Menu
         this.setJMenuBar(menuBar);
         menuBar.add(optionsMenu);
         menuBar.add(gameMenu);
@@ -57,7 +63,6 @@ public class MainWindow extends JFrame{
         strokePowerRegulation.setMinorTickSpacing(5);
         strokePowerRegulation.setPaintTicks(true);
         strokePowerRegulation.setPaintLabels(true);
-
     }
 
     public static void main(String[] args) {
