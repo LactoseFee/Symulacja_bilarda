@@ -2,15 +2,15 @@ package pl.edu.pw.fizyka.pojava.bilard;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.ImageProducer;
-import java.io.InputStream;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class MainWindow extends JFrame{
 
     //Panels
     PoolTablePanel poolPanel = new PoolTablePanel();
     JPanel sliderPanel = new JPanel(new BorderLayout(10, 10));
-    JPanel bottomPanel = new JPanel();
+    JPanel bottomPanel = new JPanel(new GridLayout(1, 2, 0, 5));
 
     //Menu
     JMenuBar menuBar = new JMenuBar();
@@ -23,6 +23,10 @@ public class MainWindow extends JFrame{
     JMenuItem itemSave = new JMenuItem("Zapisz grę");
     JMenuItem itemLoad = new JMenuItem("Wczytaj poprzednią grę");
     JMenuItem itemNewGame = new JMenuItem("Rozpocznij grę od początku");
+
+    //Menu Easter Egg
+    ImageIcon billardIcon = new ImageIcon(MainWindow.class.getResource("1674_illustration-The_Billiard_Table.png"));
+    //JLabel iconLabel = new JLabel(billardIcon);
 
     //Cue stroke power slider
     JSlider strokePowerRegulation = new JSlider(0,100);
@@ -41,18 +45,30 @@ public class MainWindow extends JFrame{
         this.add(poolPanel, BorderLayout.CENTER);
         this.add(bottomPanel, BorderLayout.SOUTH);
         this.add(sliderPanel, BorderLayout.WEST);
+        poolPanel.setBackground(Color.lightGray);
 
         //Menu
         this.setJMenuBar(menuBar);
         menuBar.add(optionsMenu);
         menuBar.add(gameMenu);
 
+        //Menu items
         optionsMenu.add(itemPreferences);
         optionsMenu.add(itemLanguageVer);
         optionsMenu.add(itemInfo);
         gameMenu.add(itemSave);
         gameMenu.add(itemLoad);
         gameMenu.add(itemNewGame);
+
+        //Menu items listeners
+        itemInfo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(MainWindow.this, "Program został napisany przez Rafała Nowakowskiego oraz Magdalenę Paździorę w ramach projektu z zajęć Programowania Obiektowego.\n" +
+                        "W ramach ciekawostki - to rycina z XVII wieku obrazująca dwóch arystokratów grających w jedną z najwcześniejszych wersji bilarda.\nMiłej gry!", "Informacja", JOptionPane.PLAIN_MESSAGE, billardIcon);
+
+            }
+        });
 
         //Cue stroke power slider
         sliderPanel.add(strokePowerRegulation, BorderLayout.CENTER);
@@ -63,6 +79,11 @@ public class MainWindow extends JFrame{
         strokePowerRegulation.setMinorTickSpacing(5);
         strokePowerRegulation.setPaintTicks(true);
         strokePowerRegulation.setPaintLabels(true);
+
+        //Bottom panel
+        bottomPanel.setPreferredSize(new Dimension(MainWindow.WIDTH,70));
+        bottomPanel.add(firstPlayerPoints);
+        bottomPanel.add(secondPlayerPoints);
     }
 
     public static void main(String[] args) {
