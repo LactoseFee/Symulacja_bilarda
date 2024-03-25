@@ -11,7 +11,8 @@ public class MainWindow extends JFrame{
     PoolTablePanel poolPanel = new PoolTablePanel();
     JPanel sliderPanel = new JPanel(new BorderLayout(10, 10));
     JPanel bottomPanel = new JPanel(new GridLayout(1, 2, 0, 5));
-
+   
+    
     //Menu
     JMenuBar menuBar = new JMenuBar();
     JMenu optionsMenu = new JMenu("Menu opcji");
@@ -23,7 +24,8 @@ public class MainWindow extends JFrame{
     JMenuItem itemSave = new JMenuItem("Zapisz grę");
     JMenuItem itemLoad = new JMenuItem("Wczytaj poprzednią grę");
     JMenuItem itemNewGame = new JMenuItem("Rozpocznij grę od początku");
-
+    JMenuItem itemFullscreen = new JMenuItem("Tryb pełnoekranowy");
+    
     //Menu Easter Egg
     ImageIcon billardIcon = new ImageIcon(MainWindow.class.getResource("1674_illustration-The_Billiard_Table.png"));
     //JLabel iconLabel = new JLabel(billardIcon);
@@ -32,33 +34,37 @@ public class MainWindow extends JFrame{
     JSlider strokePowerRegulation = new JSlider(0,100);
     JButton cueRelease = new JButton("Uderz");
     JLabel strokePowerRegulationLabel = new JLabel("Siła uderzenia");
-
+    
     //Bottom labels
     JLabel firstPlayerPoints = new JLabel("Bile zdobyte przez Player1:\n");
     JLabel secondPlayerPoints = new JLabel("Bile zdobyte przez Player2:\n");
 
     public MainWindow() throws HeadlessException {
-        this.setMinimumSize(new Dimension(800,600));
+        this.setSize(1200, 750);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         //Panels
         this.add(poolPanel, BorderLayout.CENTER);
         this.add(bottomPanel, BorderLayout.SOUTH);
         this.add(sliderPanel, BorderLayout.WEST);
-        poolPanel.setBackground(Color.lightGray);
-
+        
+        
+        
         //Menu
         this.setJMenuBar(menuBar);
         menuBar.add(optionsMenu);
         menuBar.add(gameMenu);
+        
 
         //Menu items
         optionsMenu.add(itemPreferences);
         optionsMenu.add(itemLanguageVer);
         optionsMenu.add(itemInfo);
+        optionsMenu.add(itemFullscreen);
         gameMenu.add(itemSave);
         gameMenu.add(itemLoad);
         gameMenu.add(itemNewGame);
+        
 
         //Menu items listeners
         itemInfo.addActionListener(new ActionListener() {
@@ -69,6 +75,16 @@ public class MainWindow extends JFrame{
 
             }
         });
+        
+        itemFullscreen.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JMenuItem menuItem = (JMenuItem) e.getSource();
+                JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
+                Component invoker = popupMenu.getInvoker();
+                JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(invoker);
+                parentFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			}
+		});
 
         //Cue stroke power slider
         sliderPanel.add(strokePowerRegulation, BorderLayout.CENTER);
@@ -84,11 +100,21 @@ public class MainWindow extends JFrame{
         bottomPanel.setPreferredSize(new Dimension(MainWindow.WIDTH,70));
         bottomPanel.add(firstPlayerPoints);
         bottomPanel.add(secondPlayerPoints);
+        
+        
+        
+        poolPanel.panelWidth = poolPanel.getWidth();
+        poolPanel.panelWidth = poolPanel.getHeight();
+        this.setLocationRelativeTo(null);
+        this.setResizable(true);
     }
 
     public static void main(String[] args) {
         MainWindow frame = new MainWindow();
         frame.setVisible(true);
+        frame.poolPanel.panelWidth = frame.poolPanel.getWidth();
+        frame.poolPanel.panelHeight = frame.poolPanel.getHeight();
+        System.out.println(frame.poolPanel.panelWidth+" "+frame.poolPanel.panelHeight);
     }
 
 }
