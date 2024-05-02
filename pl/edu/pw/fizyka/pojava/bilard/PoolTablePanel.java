@@ -6,7 +6,10 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 public class PoolTablePanel extends JPanel {
-    
+
+	public int getTableWidth(){return tableWidth;}
+	public int getTableHeight(){return tableHeight;}
+
 	public int panelWidth = this.getWidth();
 	public int panelHeight = this.getHeight();
 	Color poolColorGreen = new Color(88, 152, 67);
