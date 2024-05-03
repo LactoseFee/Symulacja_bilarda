@@ -1,41 +1,37 @@
 package pl.edu.pw.fizyka.pojava.bilard;
 
-
 import javax.swing.*;
-import javax.swing.text.JTextComponent;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MainWindow extends JFrame{
 
-    //Language
-    public enum Language {POLISH, ENGLISH}
-    Language language = Language.POLISH; //by default
-    JButton polish = new JButton("Polski");
-    JButton english = new JButton("English");
-    void setLanguage(Language lang){language = lang;}
-    ImageIcon polishIcon = new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("polish.png")));
-    ImageIcon englishIcon = new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("english.png")));
+    //Access to language libraries
+    Locale locale = Locale.forLanguageTag("en");
+    ResourceBundle bundle = ResourceBundle.getBundle("pl.edu.pw.fizyka.pojava.bilard.messages", locale);
 
+    //Cue
+    int cuePower = 100;
+    public void setCuePower(int cueP){cuePower = cueP;}
 
     //Panels
     JPanel languagePanel = new JPanel();
     PoolTablePanel poolPanel = new PoolTablePanel();
     JPanel sliderPanel = new JPanel(new BorderLayout(5, 5));
     JPanel bottomPanel = new JPanel(new GridLayout(2, 2, 0, 5));
-    
-    //Bottom labels
-    JLabel firstPlayerPoints = new JLabel("Bile zdobyte przez Player1:\n");
-    JLabel secondPlayerPoints = new JLabel("Bile zdobyte przez Player2:\n");
-    JLabel fPP = new JLabel("1 2 3");
-    JLabel sPP = new JLabel("4 5 6");
-
 
     public MainWindow() throws HeadlessException {
         this.setSize(1200, 750);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        //bundle = ResourceBundle.getBundle("messages");
 
         //Panels
         this.add(poolPanel, BorderLayout.CENTER);
@@ -44,38 +40,31 @@ public class MainWindow extends JFrame{
 
         createMenu();
         createCuePowerSlider();
+        createBottomLabels();
+        createLanguageMenu();
 
-        //Bottom panel
-        bottomPanel.setPreferredSize(new Dimension(MainWindow.WIDTH,70));
-        bottomPanel.add(firstPlayerPoints);
-        bottomPanel.add(secondPlayerPoints);
-        bottomPanel.add(fPP);
-        bottomPanel.add(sPP);
-
-        
         poolPanel.panelWidth = poolPanel.getWidth();
         poolPanel.panelWidth = poolPanel.getHeight();
         this.setLocationRelativeTo(null);
         this.setResizable(true);
     }
 
-    void createMenu(){
+    public void createMenu(){
         //Menu
         JMenuBar menuBar = new JMenuBar();
-        JMenu optionsMenu = new JMenu("Opcje");
-        JMenu gameMenu = new JMenu("Menu gry");
+        JMenu optionsMenu = new JMenu(bundle.getString("menu.preferences"));
+        JMenu gameMenu = new JMenu(bundle.getString("menu.gameplay"));
 
-        JMenuItem itemPreferences = new JMenuItem("Preferencje wyglądu gry");
-        JMenuItem itemLanguageVer = new JMenuItem("Wersja językowa");
-        JMenuItem itemInfo = new JMenuItem("Informacje o autorach");
-        JMenuItem itemSave = new JMenuItem("Zapisz grę");
-        JMenuItem itemLoad = new JMenuItem("Wczytaj poprzednią grę");
-        JMenuItem itemNewGame = new JMenuItem("Rozpocznij grę od początku");
-        JMenuItem itemFullscreen = new JMenuItem("Tryb pełnoekranowy");
+        JMenuItem itemPreferences = new JMenuItem(bundle.getString("menu.theme"));
+        JMenuItem itemLanguageVer = new JMenuItem(bundle.getString("menu.language"));
+        JMenuItem itemInfo = new JMenuItem(bundle.getString("menu.info"));
+        JMenuItem itemSave = new JMenuItem(bundle.getString("menu.save"));
+        JMenuItem itemLoad = new JMenuItem(bundle.getString("menu.load"));
+        JMenuItem itemNewGame = new JMenuItem(bundle.getString("menu.start"));
+        JMenuItem itemFullscreen = new JMenuItem(bundle.getString("menu.fullscreen"));
 
         //Menu Easter Egg
         ImageIcon billardIcon = new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("1674_illustration-The_Billiard_Table.png")));
-        //JLabel iconLabel = new JLabel(billardIcon);
 
         //Menu
         this.setJMenuBar(menuBar);
@@ -91,18 +80,11 @@ public class MainWindow extends JFrame{
         gameMenu.add(itemLoad);
         gameMenu.add(itemNewGame);
 
-        //Language
-        polish.setIcon(polishIcon);
-        english.setIcon(englishIcon);
-        polish.addActionListener(new LanguageAction("pl"));
-        english.addActionListener(new LanguageAction("en"));
-
         //Menu items listeners
         itemInfo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "<html><body><p style='width: 200px;'>" +" Program został napisany przez Rafała Nowakowskiego oraz Magdalenę Paździorę w ramach projektu z zajęć Programowania Obiektowego." +
-                        "W ramach ciekawostki - to rycina z XVII wieku obrazująca dwóch arystokratów grających w jedną z najwcześniejszych wersji bilarda.\nMiłej gry!" + "</p></body></html>", "Informacja", JOptionPane.PLAIN_MESSAGE, billardIcon);
+                JOptionPane.showMessageDialog(null, bundle.getString("menu.easteregg"), "Easter egg ;)", JOptionPane.PLAIN_MESSAGE, billardIcon);
             }
         });
 
@@ -120,12 +102,10 @@ public class MainWindow extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(e.getSource()==itemLanguageVer){
-                    JFrame languageFrame = new JFrame("Wybór języka");
+                    JFrame languageFrame = new JFrame(bundle.getString("menu.language.select"));
                     languageFrame.add(languagePanel);
                     languageFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
                     languagePanel.setLayout(new GridLayout(1,2));
-                    languagePanel.add(polish);
-                    languagePanel.add(english);
                     languageFrame.setSize(500,200);
                     languageFrame.setLocation(poolPanel.getWidth()/2, poolPanel.getHeight()/2);
                     languageFrame.setVisible(true);
@@ -135,16 +115,14 @@ public class MainWindow extends JFrame{
         });
     }
 
-    void createCuePowerSlider(){
+    public void createCuePowerSlider(){
         sliderPanel.setPreferredSize(new Dimension(100,PoolTablePanel.HEIGHT));
 
         //Cue stroke power slider
         JSlider strokePowerRegulation = new JSlider(0,100);
-        JButton cueRelease = new JButton("Uderz");
+        JButton cueRelease = new JButton(bundle.getString("cue.stroke"));
         JLabel strokePowerRegulationLabel = new JLabel();
 
-        strokePowerRegulationLabel.setText("Moc uderzenia:\n" + strokePowerRegulation.getValue());
-        strokePowerRegulationLabel.setText("<html>"+ "Moc uderzenia [%]:\n"+strokePowerRegulation.getValue()+"</html>");
         strokePowerRegulationLabel.setPreferredSize(new Dimension(sliderPanel.getSize().width, sliderPanel.getSize().height + 50));
 
         //Cue stroke power slider
@@ -158,26 +136,76 @@ public class MainWindow extends JFrame{
         strokePowerRegulation.setMinorTickSpacing(5);
         strokePowerRegulation.setPaintTicks(true);
         strokePowerRegulation.setPaintLabels(true);
+
+        //Slider listener
+        strokePowerRegulation.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                setCuePower(strokePowerRegulation.getValue());
+                strokePowerRegulationLabel.setText("<html>"+ bundle.getString("cue.power.label") + "\n" + cuePower + "</html>");
+            }
+        });
     }
 
-    class LanguageAction implements ActionListener{
-        String codeLanguage;
+    public void createBottomLabels(){
+        //Bottom labels
+        JLabel firstPlayerPoints = new JLabel(bundle.getString("bottomlabel.p1"));
+        JLabel secondPlayerPoints = new JLabel(bundle.getString("bottomlabel.p2"));
+        JLabel fPP = new JLabel("1 2 3");
+        JLabel sPP = new JLabel("4 5 6");
 
-        public LanguageAction(String codeLang){
-            this.codeLanguage = codeLang;
-        }
+        //Bottom panel
+        bottomPanel.setPreferredSize(new Dimension(MainWindow.WIDTH,70));
+        bottomPanel.add(firstPlayerPoints);
+        bottomPanel.add(secondPlayerPoints);
+        bottomPanel.add(fPP);
+        bottomPanel.add(sPP);
+    }
 
-        @Override
-        public void actionPerformed(ActionEvent e){
-        }
+    public void createLanguageMenu(){
+        //Language changes
+        enum Language {POLISH, ENGLISH}
+        AtomicReference<Language> language = new AtomicReference<>(Language.POLISH); //by default
+
+        JButton polishButton = new JButton("Polski");
+        JButton englishButton = new JButton("English");
+
+        //Icons
+        ImageIcon polishIcon = new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("polish.png")));
+        ImageIcon englishIcon = new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("english.png")));
+        polishButton.setIcon(polishIcon);
+        englishButton.setIcon(englishIcon);
+
+        languagePanel.add(polishButton);
+        languagePanel.add(englishButton);
+
+        //Listeners
+        polishButton.addActionListener(e->{
+            if(e.getSource()==polishButton){
+                locale = Locale.forLanguageTag("pl");
+                language.set(Language.POLISH);
+            }
+        });
+        englishButton.addActionListener(e->{
+            if(e.getSource()==englishButton){
+                locale = Locale.forLanguageTag("en");
+                language.set(Language.ENGLISH);
+            }
+        });
+    }
+
+    public void makeItInternational(){
+        //To ma robić .setText(bundle.cośtam...);
+        //Jak się dobrać do wartości zainicjalizowanych gdzieśtam?
+
     }
 
     public static void main(String[] args) {
         MainWindow frame = new MainWindow();
         frame.setVisible(true);
-        frame.poolPanel.panelWidth = frame.poolPanel.getWidth();
-        frame.poolPanel.panelHeight = frame.poolPanel.getHeight();
-        System.out.println(frame.poolPanel.panelWidth+" "+frame.poolPanel.panelHeight);
+//        frame.poolPanel.panelWidth = frame.poolPanel.getWidth();
+//        frame.poolPanel.panelHeight = frame.poolPanel.getHeight();
+//        System.out.println(frame.poolPanel.panelWidth+" "+frame.poolPanel.panelHeight);
     }
 
 }
