@@ -13,13 +13,34 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class MainWindow extends JFrame{
 
-    //Access to language libraries
-    Locale locale = Locale.forLanguageTag("en");
-    ResourceBundle bundle = ResourceBundle.getBundle("pl.edu.pw.fizyka.pojava.bilard.messages", locale);
+    //Declarations of variables that need to be globally accessible
+    //Menu
+    JMenuBar menuBar;
+    JMenu optionsMenu;
+    JMenu gameMenu;
+    JMenuItem itemPreferences;
+    JMenuItem itemLanguageVer;
+    JMenuItem itemInfo;
+    JMenuItem itemSave;
+    JMenuItem itemLoad;
+    JMenuItem itemNewGame;
+    JMenuItem itemFullscreen;
 
-    //Cue
-    int cuePower = 100;
+    //Access to language libraries
+    Locale locale = Locale.forLanguageTag("en"); //default language
+    ResourceBundle bundle = ResourceBundle.getBundle("pl.edu.pw.fizyka.pojava.bilard.messages", locale);
+    JFrame languageFrame;
+
+    //Cue power regulation panel
+    int cuePower = 100; //0=<cuePower=<100
+    JButton cueRelease;
+    JLabel strokePowerRegulationLabel;
+
     public void setCuePower(int cueP){cuePower = cueP;}
+
+    //Bottom panel
+    JLabel firstPlayerPoints;
+    JLabel secondPlayerPoints;
 
     //Panels
     JPanel languagePanel = new JPanel();
@@ -29,9 +50,7 @@ public class MainWindow extends JFrame{
 
     public MainWindow() throws HeadlessException {
         this.setSize(1200, 750);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
-        //bundle = ResourceBundle.getBundle("messages");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         //Panels
         this.add(poolPanel, BorderLayout.CENTER);
@@ -42,6 +61,7 @@ public class MainWindow extends JFrame{
         createCuePowerSlider();
         createBottomLabels();
         createLanguageMenu();
+        makeItInternational();
 
         poolPanel.panelWidth = poolPanel.getWidth();
         poolPanel.panelWidth = poolPanel.getHeight();
@@ -51,17 +71,17 @@ public class MainWindow extends JFrame{
 
     public void createMenu(){
         //Menu
-        JMenuBar menuBar = new JMenuBar();
-        JMenu optionsMenu = new JMenu(bundle.getString("menu.preferences"));
-        JMenu gameMenu = new JMenu(bundle.getString("menu.gameplay"));
+        menuBar = new JMenuBar();
+        optionsMenu = new JMenu(bundle.getString("menu.preferences"));
+        gameMenu = new JMenu(bundle.getString("menu.gameplay"));
 
-        JMenuItem itemPreferences = new JMenuItem(bundle.getString("menu.theme"));
-        JMenuItem itemLanguageVer = new JMenuItem(bundle.getString("menu.language"));
-        JMenuItem itemInfo = new JMenuItem(bundle.getString("menu.info"));
-        JMenuItem itemSave = new JMenuItem(bundle.getString("menu.save"));
-        JMenuItem itemLoad = new JMenuItem(bundle.getString("menu.load"));
-        JMenuItem itemNewGame = new JMenuItem(bundle.getString("menu.start"));
-        JMenuItem itemFullscreen = new JMenuItem(bundle.getString("menu.fullscreen"));
+        itemPreferences = new JMenuItem(bundle.getString("menu.theme"));
+        itemLanguageVer = new JMenuItem(bundle.getString("menu.language"));
+        itemInfo = new JMenuItem(bundle.getString("menu.info"));
+        itemSave = new JMenuItem(bundle.getString("menu.save"));
+        itemLoad = new JMenuItem(bundle.getString("menu.load"));
+        itemNewGame = new JMenuItem(bundle.getString("menu.start"));
+        itemFullscreen = new JMenuItem(bundle.getString("menu.fullscreen"));
 
         //Menu Easter Egg
         ImageIcon billardIcon = new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("1674_illustration-The_Billiard_Table.png")));
@@ -81,37 +101,27 @@ public class MainWindow extends JFrame{
         gameMenu.add(itemNewGame);
 
         //Menu items listeners
-        itemInfo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, bundle.getString("menu.easteregg"), "Easter egg ;)", JOptionPane.PLAIN_MESSAGE, billardIcon);
-            }
+        itemInfo.addActionListener(e -> JOptionPane.showMessageDialog(null, bundle.getString("menu.easteregg"), "Easter egg ;)", JOptionPane.PLAIN_MESSAGE, billardIcon));
+
+        itemFullscreen.addActionListener(e -> {
+            JMenuItem menuItem = (JMenuItem) e.getSource();
+            JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
+            Component invoker = popupMenu.getInvoker();
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(invoker);
+            parentFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         });
 
-        itemFullscreen.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                JMenuItem menuItem = (JMenuItem) e.getSource();
-                JPopupMenu popupMenu = (JPopupMenu) menuItem.getParent();
-                Component invoker = popupMenu.getInvoker();
-                JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(invoker);
-                parentFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        itemLanguageVer.addActionListener(e -> {
+            if(e.getSource()==itemLanguageVer){
+                languageFrame = new JFrame(bundle.getString("menu.language.select"));
+                languageFrame.add(languagePanel);
+                languageFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                languagePanel.setLayout(new GridLayout(1,2));
+                languageFrame.setSize(500,200);
+                languageFrame.setLocation(poolPanel.getWidth()/2, poolPanel.getHeight()/2);
+                languageFrame.setVisible(true);
             }
-        });
 
-        itemLanguageVer.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(e.getSource()==itemLanguageVer){
-                    JFrame languageFrame = new JFrame(bundle.getString("menu.language.select"));
-                    languageFrame.add(languagePanel);
-                    languageFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-                    languagePanel.setLayout(new GridLayout(1,2));
-                    languageFrame.setSize(500,200);
-                    languageFrame.setLocation(poolPanel.getWidth()/2, poolPanel.getHeight()/2);
-                    languageFrame.setVisible(true);
-                }
-
-            }
         });
     }
 
@@ -120,8 +130,8 @@ public class MainWindow extends JFrame{
 
         //Cue stroke power slider
         JSlider strokePowerRegulation = new JSlider(0,100);
-        JButton cueRelease = new JButton(bundle.getString("cue.stroke"));
-        JLabel strokePowerRegulationLabel = new JLabel();
+        cueRelease = new JButton(bundle.getString("cue.stroke"));
+        strokePowerRegulationLabel = new JLabel();
 
         strokePowerRegulationLabel.setPreferredSize(new Dimension(sliderPanel.getSize().width, sliderPanel.getSize().height + 50));
 
@@ -149,8 +159,8 @@ public class MainWindow extends JFrame{
 
     public void createBottomLabels(){
         //Bottom labels
-        JLabel firstPlayerPoints = new JLabel(bundle.getString("bottomlabel.p1"));
-        JLabel secondPlayerPoints = new JLabel(bundle.getString("bottomlabel.p2"));
+        firstPlayerPoints = new JLabel(bundle.getString("bottomlabel.p1"));
+        secondPlayerPoints = new JLabel(bundle.getString("bottomlabel.p2"));
         JLabel fPP = new JLabel("1 2 3");
         JLabel sPP = new JLabel("4 5 6");
 
@@ -184,12 +194,16 @@ public class MainWindow extends JFrame{
             if(e.getSource()==polishButton){
                 locale = Locale.forLanguageTag("pl");
                 language.set(Language.POLISH);
+                bundle = ResourceBundle.getBundle("pl.edu.pw.fizyka.pojava.bilard.messages", locale);
+                makeItInternational();
             }
         });
         englishButton.addActionListener(e->{
             if(e.getSource()==englishButton){
                 locale = Locale.forLanguageTag("en");
                 language.set(Language.ENGLISH);
+                bundle = ResourceBundle.getBundle("pl.edu.pw.fizyka.pojava.bilard.messages", locale);
+                makeItInternational();
             }
         });
     }
@@ -197,15 +211,25 @@ public class MainWindow extends JFrame{
     public void makeItInternational(){
         //To ma robić .setText(bundle.cośtam...);
         //Jak się dobrać do wartości zainicjalizowanych gdzieśtam?
-
+        optionsMenu.setText(bundle.getString("menu.preferences"));
+        gameMenu.setText(bundle.getString("menu.gameplay"));
+        itemPreferences.setText(bundle.getString("menu.theme"));
+        itemLanguageVer.setText(bundle.getString("menu.language"));
+        itemInfo.setText(bundle.getString("menu.info"));
+        itemSave.setText(bundle.getString("menu.save"));
+        itemLoad.setText(bundle.getString("menu.load"));
+        itemNewGame.setText(bundle.getString("menu.start"));
+        itemFullscreen.setText(bundle.getString("menu.fullscreen"));
+        //languageFrame.setTitle(bundle.getString("menu.language.select"));
+        cueRelease.setText(bundle.getString("cue.stroke"));
+        strokePowerRegulationLabel.setText("<html>"+ bundle.getString("cue.power.label") + "\n" + cuePower + "</html>");
+        firstPlayerPoints.setText(bundle.getString("bottomlabel.p1"));
+        secondPlayerPoints.setText(bundle.getString("bottomlabel.p2"));
     }
 
     public static void main(String[] args) {
         MainWindow frame = new MainWindow();
         frame.setVisible(true);
-//        frame.poolPanel.panelWidth = frame.poolPanel.getWidth();
-//        frame.poolPanel.panelHeight = frame.poolPanel.getHeight();
-//        System.out.println(frame.poolPanel.panelWidth+" "+frame.poolPanel.panelHeight);
     }
 
 }

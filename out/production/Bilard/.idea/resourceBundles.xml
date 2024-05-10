@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ResourceBundleManager">
+    <file url="file://$PROJECT_DIR$/pl/edu/pw/fizyka/pojava/bilard/messages_en.properties" />
+    <custom-resource-bundle>
+      <file value="file://$PROJECT_DIR$/pl/edu/pw/fizyka/pojava/bilard/messages_en.properties" />
+      <file value="file://$PROJECT_DIR$/pl/edu/pw/fizyka/pojava/bilard/messages_pl.properties" />
+      <file value="file://$PROJECT_DIR$/pl/edu/pw/fizyka/pojava/bilard/messages_pl_PL.properties" />
+      <base-name>messages</base-name>
+    </custom-resource-bundle>
+  </component>
+</project>
