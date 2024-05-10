@@ -2,16 +2,28 @@ package pl.edu.pw.fizyka.pojava.bilard;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.Objects;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 
 public class PoolTablePanel extends JPanel {
+
+	public void setPanelBackgroundColor(Color backgroundPoolColor){
+		panelBackgroundColor=backgroundPoolColor;
+	}
+	public void setAllColors(Color background, Color pool, Color sides, Color corners){
+		panelBackgroundColor=background;
+		poolColorGreen=pool;
+		sidePoolColor=sides;
+		cornerColor=corners;
+	}
 
 	public int getTableWidth(){return tableWidth;}
 	public int getTableHeight(){return tableHeight;}
 
 	public int panelWidth = this.getWidth();
 	public int panelHeight = this.getHeight();
+	Color panelBackgroundColor = new Color(224,224,225);
 	Color poolColorGreen = new Color(88, 152, 67);
 	Color cornerColor = new Color(87, 76, 65);
 	Color sidePoolColor = new Color(86, 234, 50);
@@ -57,7 +69,8 @@ public class PoolTablePanel extends JPanel {
 	public int[] rightSideY = {marginY+sideWidth+a, marginY+sideWidth+tableHeight-a, marginY+sideWidth+tableHeight-a-sidePoolWidth, marginY+sideWidth+a+sidePoolWidth};
 	
 	public void paintComponent(Graphics g) {
-			
+
+		g.setColor(panelBackgroundColor);
 		g.fillRect(0,0,getWidth(), getHeight());
 		g.setColor(cornerColor);
 		g.fillRoundRect(marginX, marginY, tableWidth+2*sideWidth, tableHeight+2*sideWidth, cornerRounding, cornerRounding);

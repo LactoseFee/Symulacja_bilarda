@@ -1,11 +1,7 @@
 package pl.edu.pw.fizyka.pojava.bilard;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -13,12 +9,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class MainWindow extends JFrame{
 
+
     //Declarations of variables that need to be globally accessible
     //Menu
     JMenuBar menuBar;
     JMenu optionsMenu;
     JMenu gameMenu;
-    JMenuItem itemPreferences;
+
     JMenuItem itemLanguageVer;
     JMenuItem itemInfo;
     JMenuItem itemSave;
@@ -26,19 +23,27 @@ public class MainWindow extends JFrame{
     JMenuItem itemNewGame;
     JMenuItem itemFullscreen;
 
-    //Access to language libraries
+    JMenu subMenuPreferences;
+    JMenuItem themeDefault;
+    JMenuItem themeDark;
+    JMenuItem themeMiami;
+
+    //Theme
+    ThemeManager themeManager = new ThemeManager();
+
+    //Access to language libraries/components
     Locale locale = Locale.forLanguageTag("en"); //default language
     ResourceBundle bundle = ResourceBundle.getBundle("pl.edu.pw.fizyka.pojava.bilard.messages", locale);
     JFrame languageFrame;
 
-    //Cue power regulation panel
+    //Cue power regulation
     int cuePower = 100; //0=<cuePower=<100
     JButton cueRelease;
     JLabel strokePowerRegulationLabel;
 
     public void setCuePower(int cueP){cuePower = cueP;}
 
-    //Bottom panel
+    //Points for players
     JLabel firstPlayerPoints;
     JLabel secondPlayerPoints;
 
@@ -53,9 +58,11 @@ public class MainWindow extends JFrame{
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         //Panels
-        this.add(poolPanel, BorderLayout.CENTER);
-        this.add(bottomPanel, BorderLayout.SOUTH);
-        this.add(sliderPanel, BorderLayout.WEST);
+        add(poolPanel, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+        add(sliderPanel, BorderLayout.WEST);
+
+        this.themeManager.setTheme("default");
 
         createMenu();
         createCuePowerSlider();
@@ -75,7 +82,8 @@ public class MainWindow extends JFrame{
         optionsMenu = new JMenu(bundle.getString("menu.preferences"));
         gameMenu = new JMenu(bundle.getString("menu.gameplay"));
 
-        itemPreferences = new JMenuItem(bundle.getString("menu.theme"));
+        subMenuPreferences = new JMenu(bundle.getString("menu.theme"));
+
         itemLanguageVer = new JMenuItem(bundle.getString("menu.language"));
         itemInfo = new JMenuItem(bundle.getString("menu.info"));
         itemSave = new JMenuItem(bundle.getString("menu.save"));
@@ -83,7 +91,12 @@ public class MainWindow extends JFrame{
         itemNewGame = new JMenuItem(bundle.getString("menu.start"));
         itemFullscreen = new JMenuItem(bundle.getString("menu.fullscreen"));
 
-        //Menu Easter Egg
+        //Preferences menu
+        themeDefault = new JMenuItem();
+        themeDark = new JMenuItem();
+        themeMiami = new JMenuItem();
+
+        //Icons
         ImageIcon billardIcon = new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("1674_illustration-The_Billiard_Table.png")));
 
         //Menu
@@ -91,8 +104,13 @@ public class MainWindow extends JFrame{
         menuBar.add(optionsMenu);
         menuBar.add(gameMenu);
 
-        //Menu items
-        optionsMenu.add(itemPreferences);
+        //Submenu
+        optionsMenu.add(subMenuPreferences);
+        subMenuPreferences.add(themeDefault);
+        subMenuPreferences.add(themeDark);
+        subMenuPreferences.add(themeMiami);
+
+        //Adding items
         optionsMenu.add(itemLanguageVer);
         optionsMenu.add(itemInfo);
         optionsMenu.add(itemFullscreen);
@@ -101,6 +119,23 @@ public class MainWindow extends JFrame{
         gameMenu.add(itemNewGame);
 
         //Menu items listeners
+        themeDefault.addActionListener(e -> {
+            themeManager.setTheme("default");
+            poolPanel.setAllColors(themeManager.poolPanelBackgroundColor, themeManager.poolColorGreen, themeManager.sidePoolColor, themeManager.cornerColor);
+            SwingUtilities.updateComponentTreeUI(this);
+        });
+        themeDark.addActionListener(e -> {
+            themeManager.setTheme("dark");
+            poolPanel.setAllColors(themeManager.poolPanelBackgroundColor, themeManager.poolColorGreen, themeManager.sidePoolColor, themeManager.cornerColor);
+            SwingUtilities.updateComponentTreeUI(this);
+        });
+        themeMiami.addActionListener(e -> {
+            themeManager.setTheme("miami");
+            //poolPanel.setPanelBackgroundColor(themeManager.poolPanelBackgroundColor);
+            poolPanel.setAllColors(themeManager.poolPanelBackgroundColor, themeManager.poolColorGreen, themeManager.sidePoolColor, themeManager.cornerColor);
+            SwingUtilities.updateComponentTreeUI(this);
+        });
+
         itemInfo.addActionListener(e -> JOptionPane.showMessageDialog(null, bundle.getString("menu.easteregg"), "Easter egg ;)", JOptionPane.PLAIN_MESSAGE, billardIcon));
 
         itemFullscreen.addActionListener(e -> {
@@ -148,12 +183,9 @@ public class MainWindow extends JFrame{
         strokePowerRegulation.setPaintLabels(true);
 
         //Slider listener
-        strokePowerRegulation.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                setCuePower(strokePowerRegulation.getValue());
-                strokePowerRegulationLabel.setText("<html>"+ bundle.getString("cue.power.label") + "\n" + cuePower + "</html>");
-            }
+        strokePowerRegulation.addChangeListener(e -> {
+            setCuePower(strokePowerRegulation.getValue());
+            strokePowerRegulationLabel.setText("<html>"+ bundle.getString("cue.power.label") + "\n" + cuePower + "</html>");
         });
     }
 
@@ -209,11 +241,10 @@ public class MainWindow extends JFrame{
     }
 
     public void makeItInternational(){
-        //To ma robić .setText(bundle.cośtam...);
-        //Jak się dobrać do wartości zainicjalizowanych gdzieśtam?
+
         optionsMenu.setText(bundle.getString("menu.preferences"));
         gameMenu.setText(bundle.getString("menu.gameplay"));
-        itemPreferences.setText(bundle.getString("menu.theme"));
+        subMenuPreferences.setText(bundle.getString("menu.theme"));
         itemLanguageVer.setText(bundle.getString("menu.language"));
         itemInfo.setText(bundle.getString("menu.info"));
         itemSave.setText(bundle.getString("menu.save"));
@@ -225,6 +256,10 @@ public class MainWindow extends JFrame{
         strokePowerRegulationLabel.setText("<html>"+ bundle.getString("cue.power.label") + "\n" + cuePower + "</html>");
         firstPlayerPoints.setText(bundle.getString("bottomlabel.p1"));
         secondPlayerPoints.setText(bundle.getString("bottomlabel.p2"));
+
+        themeDefault.setText("Default");
+        themeDark.setText("Dark");
+        themeMiami.setText("MiamiVice");
     }
 
     public static void main(String[] args) {
