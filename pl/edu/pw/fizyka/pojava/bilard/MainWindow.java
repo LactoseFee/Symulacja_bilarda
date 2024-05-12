@@ -17,7 +17,6 @@ public class MainWindow extends JFrame{
     JMenuBar menuBar;
     JMenu optionsMenu;
     JMenu gameMenu;
-
     JMenuItem itemLanguageVer;
     JMenuItem itemInfo;
     JMenuItem itemSave;
@@ -76,10 +75,13 @@ public class MainWindow extends JFrame{
         createLanguageMenu();
         makeItInternational();
 
-        poolPanel.panelWidth = poolPanel.getWidth();
-        poolPanel.panelWidth = poolPanel.getHeight();
+
+//        poolPanel.panelWidth = poolPanel.getWidth();
+//        poolPanel.panelWidth = poolPanel.getHeight();
+
         this.setLocationRelativeTo(null);
         this.setResizable(true);
+
     }
 
     public void createMenu(){

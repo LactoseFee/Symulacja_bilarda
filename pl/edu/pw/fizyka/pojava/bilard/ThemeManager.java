@@ -35,7 +35,7 @@ public class ThemeManager {
                 }
                 case "miami" -> {
                     poolPanelBackgroundColor = new Color(152,45,124);
-                    sidePoolColor = new Color(153,153,0);
+                    sidePoolColor = new Color(250,153,100);
                     poolColorGreen = new Color(100,160,0);
                     cornerColor = new Color(0,153,154);
                     UIManager.setLookAndFeel(new FlatGradiantoDarkFuchsiaIJTheme());
