@@ -15,7 +15,6 @@ public class MainWindow extends JFrame{
     JMenuBar menuBar;
     JMenu optionsMenu;
     JMenu gameMenu;
-
     JMenuItem itemLanguageVer;
     JMenuItem itemInfo;
     JMenuItem itemSave;
