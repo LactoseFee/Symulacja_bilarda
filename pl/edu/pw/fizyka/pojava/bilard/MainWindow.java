@@ -69,10 +69,13 @@ public class MainWindow extends JFrame{
         createLanguageMenu();
         makeItInternational();
 
-        poolPanel.panelWidth = poolPanel.getWidth();
-        poolPanel.panelWidth = poolPanel.getHeight();
+
+//        poolPanel.panelWidth = poolPanel.getWidth();
+//        poolPanel.panelWidth = poolPanel.getHeight();
+
         this.setLocationRelativeTo(null);
         this.setResizable(true);
+
     }
 
     public void createMenu(){
