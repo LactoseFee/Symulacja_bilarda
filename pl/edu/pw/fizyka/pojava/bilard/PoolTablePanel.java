@@ -4,6 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.*;
 
@@ -16,13 +20,15 @@ public class PoolTablePanel extends JPanel {
 		sidePoolColor=sides;
 		cornerColor=corners;
 	}
-	public int ballRadius = 14;
+	public int ballRadius = 20;
 	Color orangeColor = new Color(219, 90, 0);
 	Color colorBrown = new Color(148, 52, 0);
 	Color colorPurple = new Color(148, 52, 171);
 	public Color ballColorList[] = new Color[]{ Color.yellow, Color.yellow, Color.red, Color.red, orangeColor, orangeColor,
 			colorBrown, Color.green, colorPurple, colorBrown, Color.green, colorPurple, Color.black, Color.blue, Color.blue};
 	public ArrayList<Ball> ballList = new ArrayList<Ball>();
+	public ArrayList<Ball> ballListWithWhiteBall = new ArrayList<Ball>();
+
 	public Ball whiteBall = new Ball(ballRadius, 0, 0, Color.white);
 
 	public int panelWidth = this.getWidth();
@@ -42,6 +48,7 @@ public class PoolTablePanel extends JPanel {
 	public int sidePoolWidth = 14;// (int)(0.015*tableWidth)
 	public int middleHoleSideCorrectionX = 9; //(int)(0.01*tableWidth)
 	public int middleHoleSideCorrectionY = 10; //(int)(sideWidth/3)
+
 	//wspolrzedne Pool sides
 	public int leftSideX[] = {marginX+sideWidth, marginX+sideWidth,marginX+sideWidth+sidePoolWidth, marginX+sideWidth+sidePoolWidth};
 	public int leftSideY[] = {marginY+sideWidth+a, marginY+sideWidth+tableHeight-a, marginY+sideWidth+tableHeight-a-sidePoolWidth, marginY+sideWidth+a+sidePoolWidth};
@@ -112,12 +119,11 @@ public class PoolTablePanel extends JPanel {
 //		g.setColor(Color.red);
 //		g.fillOval(marginX+sideWidth+tableWidth/4+64-14,marginY+sideWidth+tableHeight/2-14, 28, 28);
 
-		for(Ball currentBall : ballList){
+		for(Ball currentBall : ballListWithWhiteBall){
 			g.setColor(currentBall.ballColor);
 			g.fillOval(currentBall.xPosition, currentBall.yPosition, 2*ballRadius, 2*ballRadius);
 		}
-		g.setColor(whiteBall.ballColor);
-		g.fillOval(whiteBall.xPosition, whiteBall.yPosition, whiteBall.radius*2, whiteBall.radius*2);
+
 	}
 
 	public PoolTablePanel(){
@@ -125,16 +131,20 @@ public class PoolTablePanel extends JPanel {
 			Ball currentBall = new Ball(ballRadius, 0, 0, ballColorList[i]);
 			ballList.add(currentBall);
 		}
+		ballListWithWhiteBall = ballList;
+		ballListWithWhiteBall.add(whiteBall);
 		moveBallsToStartingPosition();
 		moveWhiteBallToStartingPosition();
 	}
 
 	public void moveBallsToStartingPosition(){
-		int space = 2;
-		int moveLeftX = 26;//sqrt(3)/2*(2*ballRadius+space)
-		int moveDownY = 15;//(2*ballRadius+space)/2
-		int moveUpY = 30;//(2*ballRadius+space)
-		ballList.get(0).xPosition = marginX+sideWidth+tableWidth/4+64-ballRadius;
+		int space = 5;
+		int startingTriangleSide = 10*ballRadius+4*space;//(10*ballRadius+4*space)
+		int startingTriangleHeightHalf = (int)(Math.sqrt(3)*startingTriangleSide/4);//(sqrt(3)*startingTriangleSide/4)
+		int moveLeftX = (int) (Math.sqrt(3)/2*(2*ballRadius+space));//sqrt(3)/2*(2*ballRadius+space)//26
+		int moveDownY = (2*ballRadius+space)/2 ;//(2*ballRadius+space)/2//15
+		int moveUpY = (2*ballRadius+space);//(2*ballRadius+space)//30
+		ballList.get(0).xPosition = marginX+sideWidth+tableWidth/4+startingTriangleHeightHalf-ballRadius;
 		ballList.get(0).yPosition = marginY+sideWidth+tableHeight/2-ballRadius;
 		for(int i = 1; i<5; i++){
 			ballList.get(i).xPosition = (ballList.get(i-1).xPosition-moveLeftX);
@@ -165,6 +175,62 @@ public class PoolTablePanel extends JPanel {
 		whiteBall.yPosition = (marginY+sideWidth+tableHeight/2-ballRadius);
 	}
 
+	public void ballAnimation(){
+		whiteBall.vX = 1;
+		whiteBall.vY = 0;
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		scheduler.scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				for(Ball currentBall : ballListWithWhiteBall){
+					currentBall.move();
+					currentBall.boundCollission(marginX+sideWidth+sidePoolWidth,marginX+sideWidth+tableWidth-sidePoolWidth-2*ballRadius,marginY+sideWidth+sidePoolWidth, marginY+sideWidth+tableHeight-sidePoolWidth-2*ballRadius);
+				}
+				repaint();
+
+				for(int i = 0; i<ballListWithWhiteBall.size(); i++){
+					Ball ball1 = ballListWithWhiteBall.get(i);
+					for(int j = i+1; j<ballListWithWhiteBall.size(); j++ ){
+						Ball ball2 = ballListWithWhiteBall.get(j);
+						if(ball1.getDistanceBetweenBalls(ball2) > 2*ballRadius && ball1.isInCollissionWith(ball2)){
+							ball1.deleteFromInCollissionWith(ball2);
+							ball2.isInCollissionWith(ball2);
+						}
+						if(ball1.getDistanceBetweenBalls(ball2) <=2*ballRadius && !ball1.isInCollissionWith(ball2) ){
+							double[] newVelocities = ballListWithWhiteBall.get(i).ballCollision(ballListWithWhiteBall.get(j));
+							ballListWithWhiteBall.get(i).vX = newVelocities[0];
+							ballListWithWhiteBall.get(i).vY = newVelocities[1];
+							ballListWithWhiteBall.get(j).vX = newVelocities[2];
+							ballListWithWhiteBall.get(j).vY = newVelocities[3];
+
+							ballListWithWhiteBall.get(i).inCollissionWith.add(ballListWithWhiteBall.get(j));
+							ballListWithWhiteBall.get(j).inCollissionWith.add(ballListWithWhiteBall.get(i));
+							System.out.println("Zderzenie:");
+							System.out.println(ballListWithWhiteBall.get(i).vX);
+							System.out.println(ballListWithWhiteBall.get(i).vY);
+							System.out.println(ballListWithWhiteBall.get(j).vX);
+							System.out.println(ballListWithWhiteBall.get(j).vY);
+						}
+					}
+				}
+
+				repaint();
+			}
+		},0,10000, TimeUnit.MICROSECONDS);
+
+
+
+	}
+
+	public boolean ballsStillMoving(){
+		if(whiteBall.vX !=0 || whiteBall.vY != 0) return true;
+		for(int i=0; i< ballList.size(); i++){
+			if(ballList.get(i).vX != 0 || ballList.get(i).vY != 0){
+				return true;
+			}
+		}
+		return false;
+	}
 
 
 

@@ -189,6 +189,12 @@ public class MainWindow extends JFrame{
             setCuePower(strokePowerRegulation.getValue());
             strokePowerRegulationLabel.setText("<html>"+ bundle.getString("cue.power.label") + "\n" + cuePower + "</html>");
         });
+
+        cueRelease.addActionListener(e ->{
+            System.out.println("Stroke button works.");
+            poolPanel.ballAnimation();
+
+        });
     }
 
     public void createBottomLabels(){
