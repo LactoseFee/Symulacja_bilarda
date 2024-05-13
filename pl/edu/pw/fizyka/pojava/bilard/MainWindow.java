@@ -2,6 +2,8 @@ package pl.edu.pw.fizyka.pojava.bilard;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -52,6 +54,9 @@ public class MainWindow extends JFrame{
     JPanel sliderPanel = new JPanel(new BorderLayout(5, 5));
     JPanel bottomPanel = new JPanel(new GridLayout(2, 2, 0, 5));
 
+    //Icons
+    ImageIcon billardIcon;//= new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("1674_illustration-The_Billiard_Table.png")));
+
     public MainWindow() throws HeadlessException {
         this.setSize(1200, 750);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -61,9 +66,10 @@ public class MainWindow extends JFrame{
         add(bottomPanel, BorderLayout.SOUTH);
         add(sliderPanel, BorderLayout.WEST);
 
-        this.themeManager.setTheme("default");
-
+        themeManager.setTheme("default");
+        poolPanel.setAllColors(themeManager.poolPanelBackgroundColor, themeManager.poolColorGreen, themeManager.sidePoolColor, themeManager.cornerColor);
         createMenu();
+        addPreferencesListeners();
         createCuePowerSlider();
         createBottomLabels();
         createLanguageMenu();
@@ -98,9 +104,6 @@ public class MainWindow extends JFrame{
         themeDark = new JMenuItem();
         themeMiami = new JMenuItem();
 
-        //Icons
-        ImageIcon billardIcon = new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("1674_illustration-The_Billiard_Table.png")));
-
         //Menu
         this.setJMenuBar(menuBar);
         menuBar.add(optionsMenu);
@@ -112,15 +115,29 @@ public class MainWindow extends JFrame{
         subMenuPreferences.add(themeDark);
         subMenuPreferences.add(themeMiami);
 
-        //Adding items
+        //Adding menu items
         optionsMenu.add(itemLanguageVer);
         optionsMenu.add(itemInfo);
         optionsMenu.add(itemFullscreen);
         gameMenu.add(itemSave);
         gameMenu.add(itemLoad);
         gameMenu.add(itemNewGame);
+    }
 
-        //Menu items listeners
+    public void addGameplayListeners(){
+        itemNewGame.addActionListener(e -> {
+
+        });
+        itemSave.addActionListener(e -> {
+
+        });
+        itemLoad.addActionListener(e -> {
+
+        });
+    }
+
+    public void addPreferencesListeners(){
+        //Listeners
         themeDefault.addActionListener(e -> {
             themeManager.setTheme("default");
             poolPanel.setAllColors(themeManager.poolPanelBackgroundColor, themeManager.poolColorGreen, themeManager.sidePoolColor, themeManager.cornerColor);
@@ -138,7 +155,10 @@ public class MainWindow extends JFrame{
             SwingUtilities.updateComponentTreeUI(this);
         });
 
-        itemInfo.addActionListener(e -> JOptionPane.showMessageDialog(null, bundle.getString("menu.easteregg"), "Easter egg ;)", JOptionPane.PLAIN_MESSAGE, billardIcon));
+        itemInfo.addActionListener(e -> {
+                billardIcon = new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("1674_illustration-The_Billiard_Table.png")));
+                JOptionPane.showMessageDialog(null, bundle.getString("menu.easteregg"), "Easter egg ;)", JOptionPane.PLAIN_MESSAGE, billardIcon);
+        });
 
         itemFullscreen.addActionListener(e -> {
             JMenuItem menuItem = (JMenuItem) e.getSource();
@@ -273,6 +293,7 @@ public class MainWindow extends JFrame{
     public static void main(String[] args) {
         MainWindow frame = new MainWindow();
         frame.setVisible(true);
+        SwingUtilities.updateComponentTreeUI(frame);
     }
 
 }
