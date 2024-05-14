@@ -20,7 +20,7 @@ public class PoolTablePanel extends JPanel {
 		sidePoolColor=sides;
 		cornerColor=corners;
 	}
-	public int ballRadius = 20;
+	public int ballRadius = 14;
 	Color orangeColor = new Color(219, 90, 0);
 	Color colorBrown = new Color(148, 52, 0);
 	Color colorPurple = new Color(148, 52, 171);
@@ -121,7 +121,7 @@ public class PoolTablePanel extends JPanel {
 
 		for(Ball currentBall : ballListWithWhiteBall){
 			g.setColor(currentBall.ballColor);
-			g.fillOval(currentBall.xPosition, currentBall.yPosition, 2*ballRadius, 2*ballRadius);
+			g.fillOval((int) Math.round(currentBall.xPosition), (int) Math.round(currentBall.yPosition), 2*ballRadius, 2*ballRadius);
 		}
 
 	}
@@ -135,6 +135,8 @@ public class PoolTablePanel extends JPanel {
 		ballListWithWhiteBall.add(whiteBall);
 		moveBallsToStartingPosition();
 		moveWhiteBallToStartingPosition();
+
+		ballListWithWhiteBall.get(2).toCheck = true;
 	}
 
 	public void moveBallsToStartingPosition(){
@@ -176,14 +178,19 @@ public class PoolTablePanel extends JPanel {
 	}
 
 	public void ballAnimation(){
-		whiteBall.vX = 1;
+		whiteBall.vX = -0.12;
 		whiteBall.vY = 0;
+//		for(Ball currentBall : ballListWithWhiteBall) {
+//			currentBall.vX = 2;
+//			currentBall.vY = 2;
+//		}
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
 				for(Ball currentBall : ballListWithWhiteBall){
 					currentBall.move();
+
 					currentBall.boundCollission(marginX+sideWidth+sidePoolWidth,marginX+sideWidth+tableWidth-sidePoolWidth-2*ballRadius,marginY+sideWidth+sidePoolWidth, marginY+sideWidth+tableHeight-sidePoolWidth-2*ballRadius);
 				}
 				repaint();
@@ -192,31 +199,28 @@ public class PoolTablePanel extends JPanel {
 					Ball ball1 = ballListWithWhiteBall.get(i);
 					for(int j = i+1; j<ballListWithWhiteBall.size(); j++ ){
 						Ball ball2 = ballListWithWhiteBall.get(j);
-						if(ball1.getDistanceBetweenBalls(ball2) > 2*ballRadius && ball1.isInCollissionWith(ball2)){
+						if(ball1.getDistanceBetweenBalls(ball2) > 2*ballRadius) {
 							ball1.deleteFromInCollissionWith(ball2);
-							ball2.isInCollissionWith(ball2);
-						}
-						if(ball1.getDistanceBetweenBalls(ball2) <=2*ballRadius && !ball1.isInCollissionWith(ball2) ){
-							double[] newVelocities = ballListWithWhiteBall.get(i).ballCollision(ballListWithWhiteBall.get(j));
-							ballListWithWhiteBall.get(i).vX = newVelocities[0];
-							ballListWithWhiteBall.get(i).vY = newVelocities[1];
-							ballListWithWhiteBall.get(j).vX = newVelocities[2];
-							ballListWithWhiteBall.get(j).vY = newVelocities[3];
-
+							ball2.deleteFromInCollissionWith(ball1);
+						}else if(ball1.getDistanceBetweenBalls(ball2) <= 2*ballRadius && !ball1.isInCollissionWith(ball2) ){
+							ball1.ballCollision(ball2);
 							ballListWithWhiteBall.get(i).inCollissionWith.add(ballListWithWhiteBall.get(j));
 							ballListWithWhiteBall.get(j).inCollissionWith.add(ballListWithWhiteBall.get(i));
-							System.out.println("Zderzenie:");
-							System.out.println(ballListWithWhiteBall.get(i).vX);
-							System.out.println(ballListWithWhiteBall.get(i).vY);
-							System.out.println(ballListWithWhiteBall.get(j).vX);
-							System.out.println(ballListWithWhiteBall.get(j).vY);
+							if(i ==2 || j ==2 ) {
+								System.out.println("Zderzenie czerwonej");
+								System.out.println(ball1.vY + " " + ball1.vX);
+								System.out.println(ball2.vY + " " + ball2.vX);
+
+								toCheck2 = true;
+							}
 						}
+
 					}
 				}
 
 				repaint();
 			}
-		},0,10000, TimeUnit.MICROSECONDS);
+		},0,100, TimeUnit.MICROSECONDS);
 
 
 
