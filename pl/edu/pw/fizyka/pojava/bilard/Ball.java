@@ -68,7 +68,7 @@ public class Ball {
             return Math.PI;
         }
         if (this.xPosition > ball.xPosition && this.yPosition > ball.yPosition) {
-            return Math.atan((double) (this.yPosition - ball.yPosition) / (this.xPosition - ball.xPosition) + Math.PI);
+            return Math.atan((double) (this.yPosition - ball.yPosition) / (this.xPosition - ball.xPosition)) + Math.PI;
         }
         if (this.xPosition == ball.xPosition && this.yPosition > ball.yPosition) {
             return (double) 3/2 * Math.PI;

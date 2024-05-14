@@ -135,6 +135,8 @@ public class PoolTablePanel extends JPanel {
 		ballListWithWhiteBall.add(whiteBall);
 		moveBallsToStartingPosition();
 		moveWhiteBallToStartingPosition();
+
+		ballListWithWhiteBall.get(2).toCheck = true;
 	}
 
 	public void moveBallsToStartingPosition(){
@@ -176,7 +178,7 @@ public class PoolTablePanel extends JPanel {
 	}
 
 	public void ballAnimation(){
-		whiteBall.vX = -0.1;
+		whiteBall.vX = -0.12;
 		whiteBall.vY = 0;
 //		for(Ball currentBall : ballListWithWhiteBall) {
 //			currentBall.vX = 2;
@@ -197,16 +199,22 @@ public class PoolTablePanel extends JPanel {
 					Ball ball1 = ballListWithWhiteBall.get(i);
 					for(int j = i+1; j<ballListWithWhiteBall.size(); j++ ){
 						Ball ball2 = ballListWithWhiteBall.get(j);
-						if(ball1.getDistanceBetweenBalls(ball2) > 2*ballRadius && ball1.isInCollissionWith(ball2)){
+						if(ball1.getDistanceBetweenBalls(ball2) > 2*ballRadius) {
 							ball1.deleteFromInCollissionWith(ball2);
 							ball2.deleteFromInCollissionWith(ball1);
-						}
-						if(ball1.getDistanceBetweenBalls(ball2) <= 2*ballRadius && !ball1.isInCollissionWith(ball2) ){
+						}else if(ball1.getDistanceBetweenBalls(ball2) <= 2*ballRadius && !ball1.isInCollissionWith(ball2) ){
 							ball1.ballCollision(ball2);
 							ballListWithWhiteBall.get(i).inCollissionWith.add(ballListWithWhiteBall.get(j));
 							ballListWithWhiteBall.get(j).inCollissionWith.add(ballListWithWhiteBall.get(i));
+							if(i ==2 || j ==2 ) {
+								System.out.println("Zderzenie czerwonej");
+								System.out.println(ball1.vY + " " + ball1.vX);
+								System.out.println(ball2.vY + " " + ball2.vX);
 
+								toCheck2 = true;
+							}
 						}
+
 					}
 				}
 
