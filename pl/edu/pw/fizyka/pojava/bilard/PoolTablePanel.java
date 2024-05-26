@@ -136,7 +136,7 @@ public class PoolTablePanel extends JPanel {
 		moveBallsToStartingPosition();
 		moveWhiteBallToStartingPosition();
 
-		ballListWithWhiteBall.get(2).toCheck = true;
+		//ballListWithWhiteBall.get(2).toCheck = true;
 	}
 
 	public void moveBallsToStartingPosition(){
@@ -211,7 +211,7 @@ public class PoolTablePanel extends JPanel {
 								System.out.println(ball1.vY + " " + ball1.vX);
 								System.out.println(ball2.vY + " " + ball2.vX);
 
-								toCheck2 = true;
+								//toCheck2 = true;
 							}
 						}
 

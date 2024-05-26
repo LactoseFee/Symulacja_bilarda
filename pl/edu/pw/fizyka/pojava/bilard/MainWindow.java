@@ -33,7 +33,7 @@ public class MainWindow extends JFrame{
     ThemeManager themeManager = new ThemeManager();
 
     //Access to language libraries/components
-    Locale locale = Locale.forLanguageTag("en"); //default language
+    Locale locale = Locale.forLanguageTag("pl"); //default language
     ResourceBundle bundle = ResourceBundle.getBundle("pl.edu.pw.fizyka.pojava.bilard.messages", locale);
     JFrame languageFrame;
 
@@ -291,6 +291,7 @@ public class MainWindow extends JFrame{
     }
 
     public static void main(String[] args) {
+        DataBase database = new DataBase();
         MainWindow frame = new MainWindow();
         frame.setVisible(true);
         SwingUtilities.updateComponentTreeUI(frame);
