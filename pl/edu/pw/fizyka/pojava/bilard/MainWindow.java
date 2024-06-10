@@ -24,11 +24,17 @@ public class MainWindow extends JFrame{
     JMenuItem itemNewGame;
     JMenuItem itemFullscreen;
 
+    JTextField whiteBallVX;
+    JTextField whiteBallVY;
+
     JMenu subMenuPreferences;
     JMenuItem themeDefault;
     JMenuItem themeDark;
     JMenuItem themeMiami;
 
+    User playerOne = new User("", User.nowTurning.YES);
+    User playerTwo = new User("", User.nowTurning.NO);
+    User currentPlayer = new User("", User.nowTurning.YES);
     //Theme
     ThemeManager themeManager = new ThemeManager();
 
@@ -54,6 +60,9 @@ public class MainWindow extends JFrame{
     JPanel sliderPanel = new JPanel(new BorderLayout(5, 5));
     JPanel bottomPanel = new JPanel(new GridLayout(2, 2, 0, 5));
 
+    JLabel fPP;
+    JLabel sPP;
+
     //Icons
     ImageIcon billardIcon;//= new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("1674_illustration-The_Billiard_Table.png")));
 
@@ -65,7 +74,28 @@ public class MainWindow extends JFrame{
         add(poolPanel, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
         add(sliderPanel, BorderLayout.WEST);
-
+//        JTextField player1Field = new JTextField();
+//        JTextField player2Field = new JTextField();
+//        Object[] message = {
+//                "Player 1:", player1Field,
+//                "Player 2:", player2Field
+//        };
+//
+//        int option = JOptionPane.showConfirmDialog(null, message, "Enter Player Names", JOptionPane.OK_CANCEL_OPTION);
+//
+//        if (option == JOptionPane.OK_OPTION) {
+//            String player1 = player1Field.getText();
+//            String player2 = player2Field.getText();
+//
+//            if (!player1.isEmpty() && !player2.isEmpty()) {
+//                System.out.println("Player 1: " + player1);
+//                System.out.println("Player 2: " + player2);
+//            } else {
+//                JOptionPane.showMessageDialog(null, "Both player names must be entered", "Error", JOptionPane.ERROR_MESSAGE);
+//            }
+//        } else {
+//            System.out.println("User cancelled the dialog");
+//        }
         themeManager.setTheme("default");
         poolPanel.setAllColors(themeManager.poolPanelBackgroundColor, themeManager.poolColorGreen, themeManager.sidePoolColor, themeManager.cornerColor);
         createMenu();
@@ -74,10 +104,7 @@ public class MainWindow extends JFrame{
         createBottomLabels();
         createLanguageMenu();
         makeItInternational();
-
-
-//        poolPanel.panelWidth = poolPanel.getWidth();
-//        poolPanel.panelWidth = poolPanel.getHeight();
+        addGameplayListeners();
 
         this.setLocationRelativeTo(null);
         this.setResizable(true);
@@ -126,6 +153,10 @@ public class MainWindow extends JFrame{
 
     public void addGameplayListeners(){
         itemNewGame.addActionListener(e -> {
+            poolPanel.moveBallsToStartingPosition();
+            poolPanel.moveWhiteBallToStartingPosition();
+            System.out.println("Nowa gra");
+            poolPanel.repaint();
 
         });
         itemSave.addActionListener(e -> {
@@ -184,36 +215,43 @@ public class MainWindow extends JFrame{
 
     public void createCuePowerSlider(){
         sliderPanel.setPreferredSize(new Dimension(100,PoolTablePanel.HEIGHT));
-
-        //Cue stroke power slider
-        JSlider strokePowerRegulation = new JSlider(0,100);
+        sliderPanel.setLayout(new GridLayout(3,1));
+//
+//        //Cue stroke power slider
+//        JSlider strokePowerRegulation = new JSlider(0,100)
         cueRelease = new JButton(bundle.getString("cue.stroke"));
-        strokePowerRegulationLabel = new JLabel();
-
-        strokePowerRegulationLabel.setPreferredSize(new Dimension(sliderPanel.getSize().width, sliderPanel.getSize().height + 50));
+//        strokePowerRegulationLabel = new JLabel();
+//
+//        strokePowerRegulationLabel.setPreferredSize(new Dimension(sliderPanel.getSize().width, sliderPanel.getSize().height + 50));
 
         //Cue stroke power slider
-        sliderPanel.add(strokePowerRegulation, BorderLayout.CENTER);
-        sliderPanel.add(strokePowerRegulationLabel, BorderLayout.PAGE_START);
-        sliderPanel.add(cueRelease, BorderLayout.PAGE_END);
+//        sliderPanel.add(strokePowerRegulation, BorderLayout.CENTER);
+//        sliderPanel.add(strokePowerRegulationLabel, BorderLayout.PAGE_START);
+
 
         //Appearance of a slider
-        strokePowerRegulation.setOrientation(SwingConstants.VERTICAL);
-        strokePowerRegulation.setMajorTickSpacing(20);
-        strokePowerRegulation.setMinorTickSpacing(5);
-        strokePowerRegulation.setPaintTicks(true);
-        strokePowerRegulation.setPaintLabels(true);
+//        strokePowerRegulation.setOrientation(SwingConstants.VERTICAL);
+//        strokePowerRegulation.setMajorTickSpacing(20);
+//        strokePowerRegulation.setMinorTickSpacing(5);
+//        strokePowerRegulation.setPaintTicks(true);
+//        strokePowerRegulation.setPaintLabels(true);
 
         //Slider listener
-        strokePowerRegulation.addChangeListener(e -> {
-            setCuePower(strokePowerRegulation.getValue());
-            strokePowerRegulationLabel.setText("<html>"+ bundle.getString("cue.power.label") + "\n" + cuePower + "</html>");
-        });
+//        strokePowerRegulation.addChangeListener(e -> {
+//            setCuePower(strokePowerRegulation.getValue());
+//            strokePowerRegulationLabel.setText("<html>"+ bundle.getString("cue.power.label") + "\n" + cuePower + "</html>");
+//        });
+
+        whiteBallVX = new JTextField("");
+        whiteBallVY = new JTextField("");
+        sliderPanel.add(whiteBallVX);
+        sliderPanel.add(whiteBallVY);
+        sliderPanel.add(cueRelease);
 
         cueRelease.addActionListener(e ->{
             System.out.println("Stroke button works.");
-            poolPanel.ballAnimation();
-
+            currentPlayer = poolPanel.ballAnimation(Double.parseDouble(whiteBallVX.getText()), Double.parseDouble(whiteBallVY.getText()), playerOne, playerTwo);
+            System.out.println("MainWindow playerOneScore: " + playerOne.currentScore);
         });
     }
 
@@ -221,10 +259,14 @@ public class MainWindow extends JFrame{
         //Bottom labels
         firstPlayerPoints = new JLabel(bundle.getString("bottomlabel.p1"));
         secondPlayerPoints = new JLabel(bundle.getString("bottomlabel.p2"));
-        JLabel fPP = new JLabel("1 2 3");
-        JLabel sPP = new JLabel("4 5 6");
+
 
         //Bottom panel
+        ImageIcon originaRedBalllIcon = new ImageIcon(MainWindow.class.getResource("redBall2.png"));
+        Image scaledRedBallIcon = originaRedBalllIcon.getImage().getScaledInstance(40,40, Image.SCALE_SMOOTH);
+        ImageIcon redBallIcon = new ImageIcon(scaledRedBallIcon);
+        fPP = new JLabel(String.valueOf(playerOne.currentScore));
+        sPP = new JLabel(String.valueOf(playerTwo.currentScore));
         bottomPanel.setPreferredSize(new Dimension(MainWindow.WIDTH,70));
         bottomPanel.add(firstPlayerPoints);
         bottomPanel.add(secondPlayerPoints);
@@ -281,7 +323,7 @@ public class MainWindow extends JFrame{
         itemFullscreen.setText(bundle.getString("menu.fullscreen"));
         //languageFrame.setTitle(bundle.getString("menu.language.select"));
         cueRelease.setText(bundle.getString("cue.stroke"));
-        strokePowerRegulationLabel.setText("<html>"+ bundle.getString("cue.power.label") + "\n" + cuePower + "</html>");
+        //strokePowerRegulationLabel.setText("<html>"+ bundle.getString("cue.power.label") + "\n" + cuePower + "</html>");
         firstPlayerPoints.setText(bundle.getString("bottomlabel.p1"));
         secondPlayerPoints.setText(bundle.getString("bottomlabel.p2"));
 
@@ -289,6 +331,7 @@ public class MainWindow extends JFrame{
         themeDark.setText("Dark");
         themeMiami.setText("MiamiVice");
     }
+
 
     public static void main(String[] args) {
         DataBase database = new DataBase();

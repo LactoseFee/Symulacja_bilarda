@@ -3,16 +3,14 @@ package pl.edu.pw.fizyka.pojava.bilard;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.*;
 
 public class PoolTablePanel extends JPanel {
-
+	public enum player {player1, player2};
+	ArrayList<Ball> playerOneBalls = new ArrayList<Ball>();
+	ArrayList<Ball> playerTwoBalls = new ArrayList<Ball>();
+	public boolean toCheck2 = false;
 	public void setPanelBackgroundColor(Color backgroundPoolColor){panelBackgroundColor=backgroundPoolColor;}
 	public void setAllColors(Color background, Color pool, Color sides, Color corners){
 		panelBackgroundColor=background;
@@ -21,11 +19,11 @@ public class PoolTablePanel extends JPanel {
 		cornerColor=corners;
 	}
 	public int ballRadius = 14;
-	Color orangeColor = new Color(219, 90, 0);
-	Color colorBrown = new Color(148, 52, 0);
+	Color redColor = new Color(196, 27, 27, 255);
+	Color yellowColor = new Color(232, 200, 25);
 	Color colorPurple = new Color(148, 52, 171);
-	public Color ballColorList[] = new Color[]{ Color.yellow, Color.yellow, Color.red, Color.red, orangeColor, orangeColor,
-			colorBrown, Color.green, colorPurple, colorBrown, Color.green, colorPurple, Color.black, Color.blue, Color.blue};
+//	public Color ballColorList[] = new Color[]{ Color.yellow, Color.yellow, Color.red, Color.red, orangeColor, orangeColor,
+//			colorBrown, Color.green, colorPurple, colorBrown, Color.green, colorPurple, Color.black, Color.blue, Color.blue};
 	public ArrayList<Ball> ballList = new ArrayList<Ball>();
 	public ArrayList<Ball> ballListWithWhiteBall = new ArrayList<Ball>();
 
@@ -78,7 +76,20 @@ public class PoolTablePanel extends JPanel {
 	public int[] bottomRightSideY = {marginY+sideWidth+tableHeight, marginY+sideWidth+tableHeight, marginY+sideWidth+tableHeight-sidePoolWidth, marginY+sideWidth+tableHeight-sidePoolWidth};
 	public int[] rightSideX = {marginX+sideWidth+tableWidth, marginX+sideWidth+tableWidth, marginX+sideWidth+tableWidth-sidePoolWidth, marginX+sideWidth+tableWidth-sidePoolWidth};
 	public int[] rightSideY = {marginY+sideWidth+a, marginY+sideWidth+tableHeight-a, marginY+sideWidth+tableHeight-a-sidePoolWidth, marginY+sideWidth+a+sidePoolWidth};
-	
+	//wspolrzedne holes
+	public int upperLeftHoleX = marginX+sideWidth+a-2*holeRadius;
+	public int upperLeftHoleY = marginY+sideWidth+a-2*holeRadius;
+	public int upperMiddleHoleX = marginX+sideWidth+tableWidth/2-holeRadius;
+	public int upperMiddleHoleY = marginY+sideWidth+a-2*holeRadius-10;
+	public int upperRightHoleX = marginX+tableWidth;
+	public int upperRightHoleY = marginY+sideWidth+a-2*holeRadius;
+	public int lowerLeftHoleX = marginX+sideWidth+a-2*holeRadius;
+	public int lowerLeftHoleY = marginY+tableHeight;
+	public int lowerMiddleHoleX = marginX+sideWidth+tableWidth/2-holeRadius;
+	public int lowerMiddleHoleY = marginY+sideWidth+tableHeight-a+10;
+	public int lowerRightHoleX = marginX+tableWidth;
+	public int lowerRightHoleY = marginY+tableHeight;
+
 	public void paintComponent(Graphics g) {
 
 		g.setColor(panelBackgroundColor);
@@ -101,13 +112,13 @@ public class PoolTablePanel extends JPanel {
 		g.setColor(poolColorGreen);
 		g.fillRect(marginX+sideWidth, marginY+sideWidth, tableWidth, tableHeight);
 		//pool sides
-		g.setColor(sidePoolColor);
-		g.fillPolygon(leftSideX, leftSideY, 4);
-		g.fillPolygon(upperLeftSideX, upperLeftSideY, 4);
-		g.fillPolygon(upperRightSideX, upperRightSideY, 4);
-		g.fillPolygon(bottomLeftSideX, bottomLeftSideY, 4);
-		g.fillPolygon(bottomRightSideX, bottomRightSideY, 4);
-		g.fillPolygon(rightSideX, rightSideY, 4);
+//		g.setColor(sidePoolColor);
+//		g.fillPolygon(leftSideX, leftSideY, 4);
+//		g.fillPolygon(upperLeftSideX, upperLeftSideY, 4);
+//		g.fillPolygon(upperRightSideX, upperRightSideY, 4);
+//		g.fillPolygon(bottomLeftSideX, bottomLeftSideY, 4);
+//		g.fillPolygon(bottomRightSideX, bottomRightSideY, 4);
+//		g.fillPolygon(rightSideX, rightSideY, 4);
 		//holes
 		g.setColor(Color.black);
 		g.fillOval(marginX+sideWidth+a-2*holeRadius, marginY+sideWidth+a-2*holeRadius, 2*holeRadius, 2*holeRadius);
@@ -121,22 +132,23 @@ public class PoolTablePanel extends JPanel {
 
 		for(Ball currentBall : ballListWithWhiteBall){
 			g.setColor(currentBall.ballColor);
-			g.fillOval((int) Math.round(currentBall.xPosition), (int) Math.round(currentBall.yPosition), 2*ballRadius, 2*ballRadius);
+			g.fillOval((int) Math.round(currentBall.xPosition), (int) Math.round(currentBall.yPosition), 2* currentBall.radius, 2* currentBall.radius);
 		}
 
 	}
 
 	public PoolTablePanel(){
+		Color currentBallColor;
 		for(int i = 0; i<15; i++){
-			Ball currentBall = new Ball(ballRadius, 0, 0, ballColorList[i]);
+			if(i%2 == 0){currentBallColor = Color.red;}else{currentBallColor = Color.yellow;}
+			Ball currentBall = new Ball(ballRadius, 0, 0, currentBallColor);
 			ballList.add(currentBall);
 		}
+		ballList.get(12).ballColor = Color.black;
 		ballListWithWhiteBall = ballList;
 		ballListWithWhiteBall.add(whiteBall);
 		moveBallsToStartingPosition();
 		moveWhiteBallToStartingPosition();
-
-		//ballListWithWhiteBall.get(2).toCheck = true;
 	}
 
 	public void moveBallsToStartingPosition(){
@@ -177,23 +189,81 @@ public class PoolTablePanel extends JPanel {
 		whiteBall.yPosition = (marginY+sideWidth+tableHeight/2-ballRadius);
 	}
 
-	public void ballAnimation(){
-		whiteBall.vX = -0.12;
-		whiteBall.vY = 0;
-//		for(Ball currentBall : ballListWithWhiteBall) {
-//			currentBall.vX = 2;
-//			currentBall.vY = 2;
-//		}
-		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleAtFixedRate(new Runnable() {
-			@Override
-			public void run() {
+	public User hadnleUserTurns(User playerOne, User playerTwo, ArrayList<Ball> inTheHole){
+		if (inTheHole.size() == 0){
+			if (playerOne.currentTurn == User.nowTurning.YES){
+				playerOne.currentTurn = User.nowTurning.NO;
+				playerTwo.currentTurn = User.nowTurning.YES;
+				return playerTwo;
+			} else {
+				playerOne.currentTurn = User.nowTurning.YES;
+				playerTwo.currentTurn = User.nowTurning.NO;
+				return playerOne;
+			}
+		}
+		
+		if(inTheHole.get(inTheHole.size()-1).ballColor == yellowColor){
+			playerOne.currentTurn = User.nowTurning.YES;
+			playerTwo.currentTurn = User.nowTurning.NO;
+			return playerOne;
+		} else if(inTheHole.get(inTheHole.size()-1).ballColor == redColor) {
+			playerOne.currentTurn = User.nowTurning.NO;
+			playerTwo.currentTurn = User.nowTurning.YES;
+			return playerTwo;
+		} else {
+			return null;
+		}
+	}
+
+	public User ballAnimation(double whiteBallInitialVX, double whiteBallInitialVY, User playerOne, User playerTwo){
+		whiteBall.vX = whiteBallInitialVX;
+		whiteBall.vY = whiteBallInitialVY;
+//		User returnUser = new User("", User.nowTurning.NO);
+		final User[] returnUser = {new User("", User.nowTurning.NO)};
+		returnUser[0] = null;
+
+		ArrayList<Ball> inTheHoleLocal = new ArrayList<>();
+		ArrayList<Ball> inTheHole = new ArrayList<>();
+
+		Thread animationThread = new Thread(() -> {
+			int playerOneTurnScore = 0;
+			int playerTwoTurnScore = 0;
+
+			while(true) {
+				//System.out.println("watek sie odpala");
 				for(Ball currentBall : ballListWithWhiteBall){
 					currentBall.move();
+					currentBall.boundCollission(marginX+sideWidth,marginX+sideWidth+tableWidth-2*ballRadius,marginY+sideWidth, marginY+sideWidth+tableHeight-2*ballRadius, (int)(marginX+tableWidth/2-Math.sqrt(holeRadius*holeRadius-(a-holeRadius-10)*(a-holeRadius-10))),(int)(marginX+tableWidth/2+Math.sqrt(holeRadius*holeRadius-(a-holeRadius-10)*(a-holeRadius-10))), ballRadius);
+					if(currentBall.isBallInTheHole(upperLeftHoleX+holeRadius, upperLeftHoleY+holeRadius, upperMiddleHoleX+holeRadius,
+							upperMiddleHoleY+holeRadius, upperRightHoleX+holeRadius, upperRightHoleY+holeRadius, lowerLeftHoleX+holeRadius, lowerLeftHoleY+holeRadius,
+							lowerMiddleHoleX+holeRadius, lowerMiddleHoleY+holeRadius, lowerRightHoleX+holeRadius, lowerRightHoleY+holeRadius, ballRadius, holeRadius) == true){
+						inTheHoleLocal.add(currentBall);
+						inTheHole.add(currentBall);
 
-					currentBall.boundCollission(marginX+sideWidth+sidePoolWidth,marginX+sideWidth+tableWidth-sidePoolWidth-2*ballRadius,marginY+sideWidth+sidePoolWidth, marginY+sideWidth+tableHeight-sidePoolWidth-2*ballRadius);
+						System.out.println(currentBall.ballColor);
+
+						if(currentBall.ballColor == Color.yellow){
+							playerOneTurnScore += 1;
+						}
+						if(currentBall.ballColor == Color.red){
+							playerTwoTurnScore += 1;
+						}
+					}
 				}
-				repaint();
+
+				for(Ball ballToRemove : inTheHoleLocal){
+					if(ballToRemove == whiteBall){
+						//System.out.println("biala bila wpadla");
+						//System.out.println(inTheHole.size());
+						//System.out.println(inTheHoleLocal.size());
+						//break;
+					}
+					ballListWithWhiteBall.remove(ballToRemove);
+					ballToRemove.vX = 0;
+					ballToRemove.vY = 0;
+				}
+
+				inTheHoleLocal.clear();
 
 				for(int i = 0; i<ballListWithWhiteBall.size(); i++){
 					Ball ball1 = ballListWithWhiteBall.get(i);
@@ -206,29 +276,119 @@ public class PoolTablePanel extends JPanel {
 							ball1.ballCollision(ball2);
 							ballListWithWhiteBall.get(i).inCollissionWith.add(ballListWithWhiteBall.get(j));
 							ballListWithWhiteBall.get(j).inCollissionWith.add(ballListWithWhiteBall.get(i));
-							if(i ==2 || j ==2 ) {
-								System.out.println("Zderzenie czerwonej");
-								System.out.println(ball1.vY + " " + ball1.vX);
-								System.out.println(ball2.vY + " " + ball2.vX);
-
-								//toCheck2 = true;
-							}
 						}
-
 					}
+				}
+
+				if(!ballsStillMoving()){
+					if(inTheHole != null){for(Ball currentBall : inTheHole){
+						if(currentBall.ballColor == Color.white){
+//							try {
+//								Thread.sleep(1);
+//								System.out.println("Game over");
+//							} catch (InterruptedException e) {
+//								System.out.println("Nie udalo sie zasnac");
+//								Thread.currentThread().interrupt();
+//								break;
+//							}
+							moveWhiteBallToStartingPosition();
+							ballListWithWhiteBall.add(whiteBall);
+						}
+						if(currentBall.ballColor == Color.black){
+							System.out.println(Color.black);
+						}
+					}}
+
+					System.out.println("playerOneScore: " + playerOneTurnScore);
+					System.out.println("playerTwoScore: " + playerTwoTurnScore);
+					playerOne.currentScore += playerOneTurnScore;
+					playerTwo.currentScore += playerTwoTurnScore;
+					System.out.println("Score: " + playerOne.currentScore + " " + playerTwo.currentScore);
+					System.out.println();
+					returnUser[0] = hadnleUserTurns(playerOne, playerTwo, inTheHole);
+					break;
+				}
+
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					break;
 				}
 
 				repaint();
 			}
-		},0,100, TimeUnit.MICROSECONDS);
+
+		});
+
+		animationThread.start();
+//		System.out.println("Wyszlo z watku");
+//		System.out.println(inTheHole.size());
+
+//		if(inTheHole.contains(whiteBall)){
+//			System.out.println("Wykryto białą bilę jako wbitą");
+//
+//		}
+
+//		if(playerOne.currentTurn == User.nowTurning.YES){return playerOne;}else{return playerTwo;}
+
+		return returnUser[0];
 
 
-
+//		scheduler.scheduleAtFixedRate(new Runnable() {
+//
+//			public void run() {
+//				for(Ball currentBall : ballListWithWhiteBall){
+//					currentBall.move();
+//					currentBall.boundCollission(marginX+sideWidth,marginX+sideWidth+tableWidth-2*ballRadius,marginY+sideWidth, marginY+sideWidth+tableHeight-2*ballRadius, (int)(marginX+tableWidth/2-Math.sqrt(holeRadius*holeRadius-(a-holeRadius-10)*(a-holeRadius-10))),(int)(marginX+tableWidth/2+Math.sqrt(holeRadius*holeRadius-(a-holeRadius-10)*(a-holeRadius-10))), ballRadius);
+//					if(currentBall.isBallInTheHole(upperLeftHoleX+holeRadius, upperLeftHoleY+holeRadius, upperMiddleHoleX+holeRadius,
+//							upperMiddleHoleY+holeRadius, upperRightHoleX+holeRadius, upperRightHoleY+holeRadius, lowerLeftHoleX+holeRadius, lowerLeftHoleY+holeRadius,
+//							lowerMiddleHoleX+holeRadius, lowerMiddleHoleY+holeRadius, lowerRightHoleX+holeRadius, lowerRightHoleY+holeRadius, ballRadius, holeRadius) == true){
+//						inTheHoleLocal.add(currentBall);
+//						inTheHole.add(currentBall);
+//						if(whoseTurnNow == player.player1){playerOneBalls.add(currentBall);}else{playerTwoBalls.add(currentBall);}
+//					}
+//				}
+//
+//				for(Ball ballToRemove : inTheHoleLocal){
+//					ballListWithWhiteBall.remove(ballToRemove);
+//				}
+//				inTheHoleLocal.clear();
+//
+//
+//				for(int i = 0; i<ballListWithWhiteBall.size(); i++){
+//					Ball ball1 = ballListWithWhiteBall.get(i);
+//					for(int j = i+1; j<ballListWithWhiteBall.size(); j++ ){
+//						Ball ball2 = ballListWithWhiteBall.get(j);
+//						if(ball1.getDistanceBetweenBalls(ball2) > 2*ballRadius) {
+//							ball1.deleteFromInCollissionWith(ball2);
+//							ball2.deleteFromInCollissionWith(ball1);
+//						}else if(ball1.getDistanceBetweenBalls(ball2) <= 2*ballRadius && !ball1.isInCollissionWith(ball2) ){
+//							ball1.ballCollision(ball2);
+//							ballListWithWhiteBall.get(i).inCollissionWith.add(ballListWithWhiteBall.get(j));
+//							ballListWithWhiteBall.get(j).inCollissionWith.add(ballListWithWhiteBall.get(i));
+//						}
+//					}
+//				}
+//
+//				repaint();
+////				if(!ballsStillMoving()){
+////					if(inTheHole != null){for(Ball currentBall : inTheHole){
+////						if(currentBall.ballColor == Color.black){
+////							System.out.println("Game over");
+////						}
+////					}}
+////					if(inTheHole.contains(whiteBall)){moveWhiteBallToStartingPosition();}
+////				}
+//			}
+//		},0,10, TimeUnit.MICROSECONDS);
 	}
+
+
 
 	public boolean ballsStillMoving(){
 		if(whiteBall.vX !=0 || whiteBall.vY != 0) return true;
-		for(int i=0; i< ballList.size(); i++){
+		for(int i=0; i< ballList.size();		 i++){
 			if(ballList.get(i).vX != 0 || ballList.get(i).vY != 0){
 				return true;
 			}
