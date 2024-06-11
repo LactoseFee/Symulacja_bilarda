@@ -8,11 +8,14 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class MainWindow extends JFrame{
-
+public class MainWindow extends JFrame {
+    // Lock
+    private final ReentrantLock lock = new ReentrantLock();
 
     //Declarations of variables that need to be globally accessible
+
     //Menu
     JMenuBar menuBar;
     JMenu optionsMenu;
@@ -34,7 +37,12 @@ public class MainWindow extends JFrame{
 
     User playerOne = new User("", User.nowTurning.YES);
     User playerTwo = new User("", User.nowTurning.NO);
-    User currentPlayer = new User("", User.nowTurning.YES);
+    JLabel playerOneNowTurningLabel = new JLabel("********", SwingConstants.CENTER);
+    JLabel playerTwoNowTurningLabel = new JLabel("", SwingConstants.CENTER);
+
+    public JSlider ballSliderInputVX;
+    public JSlider ballSliderInputVY;
+
     //Theme
     ThemeManager themeManager = new ThemeManager();
 
@@ -48,7 +56,9 @@ public class MainWindow extends JFrame{
     JButton cueRelease;
     JLabel strokePowerRegulationLabel;
 
-    public void setCuePower(int cueP){cuePower = cueP;}
+    public void setCuePower(int cueP) {
+        cuePower = cueP;
+    }
 
     //Points for players
     JLabel firstPlayerPoints;
@@ -56,7 +66,7 @@ public class MainWindow extends JFrame{
 
     //Panels
     JPanel languagePanel = new JPanel();
-    PoolTablePanel poolPanel = new PoolTablePanel();
+    PoolTablePanel poolPanel = new PoolTablePanel(this, lock, playerOne, playerTwo);
     JPanel sliderPanel = new JPanel(new BorderLayout(5, 5));
     JPanel bottomPanel = new JPanel(new GridLayout(2, 2, 0, 5));
 
@@ -111,7 +121,7 @@ public class MainWindow extends JFrame{
 
     }
 
-    public void createMenu(){
+    public void createMenu() {
         //Menu
         menuBar = new JMenuBar();
         optionsMenu = new JMenu(bundle.getString("menu.preferences"));
@@ -151,7 +161,7 @@ public class MainWindow extends JFrame{
         gameMenu.add(itemNewGame);
     }
 
-    public void addGameplayListeners(){
+    public void addGameplayListeners() {
         itemNewGame.addActionListener(e -> {
             poolPanel.moveBallsToStartingPosition();
             poolPanel.moveWhiteBallToStartingPosition();
@@ -167,7 +177,7 @@ public class MainWindow extends JFrame{
         });
     }
 
-    public void addPreferencesListeners(){
+    public void addPreferencesListeners() {
         //Listeners
         themeDefault.addActionListener(e -> {
             themeManager.setTheme("default");
@@ -187,8 +197,8 @@ public class MainWindow extends JFrame{
         });
 
         itemInfo.addActionListener(e -> {
-                billardIcon = new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("1674_illustration-The_Billiard_Table.png")));
-                JOptionPane.showMessageDialog(null, bundle.getString("menu.easteregg"), "Easter egg ;)", JOptionPane.PLAIN_MESSAGE, billardIcon);
+            billardIcon = new ImageIcon(Objects.requireNonNull(MainWindow.class.getResource("1674_illustration-The_Billiard_Table.png")));
+            JOptionPane.showMessageDialog(null, bundle.getString("menu.easteregg"), "Easter egg ;)", JOptionPane.PLAIN_MESSAGE, billardIcon);
         });
 
         itemFullscreen.addActionListener(e -> {
@@ -200,27 +210,48 @@ public class MainWindow extends JFrame{
         });
 
         itemLanguageVer.addActionListener(e -> {
-            if(e.getSource()==itemLanguageVer){
+            if (e.getSource() == itemLanguageVer) {
                 languageFrame = new JFrame(bundle.getString("menu.language.select"));
                 languageFrame.add(languagePanel);
                 languageFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                languagePanel.setLayout(new GridLayout(1,2));
-                languageFrame.setSize(500,200);
-                languageFrame.setLocation(poolPanel.getWidth()/2, poolPanel.getHeight()/2);
+                languagePanel.setLayout(new GridLayout(1, 2));
+                languageFrame.setSize(500, 200);
+                languageFrame.setLocation(poolPanel.getWidth() / 2, poolPanel.getHeight() / 2);
                 languageFrame.setVisible(true);
             }
 
         });
     }
 
-    public void createCuePowerSlider(){
-        sliderPanel.setPreferredSize(new Dimension(100,PoolTablePanel.HEIGHT));
-        sliderPanel.setLayout(new GridLayout(3,1));
-//
-//        //Cue stroke power slider
-//        JSlider strokePowerRegulation = new JSlider(0,100)
+    public void createCuePowerSlider() {
+        sliderPanel.setPreferredSize(new Dimension(100, PoolTablePanel.HEIGHT));
+        JPanel upperSliderPanel = new JPanel();
+        JLabel sliderLabelVX = new JLabel("Vx:", SwingConstants.CENTER);
+        JLabel sliderLabelVY = new JLabel("Vy:", SwingConstants.CENTER);
+
+        sliderPanel.add(upperSliderPanel, BorderLayout.PAGE_START);
+        upperSliderPanel.setLayout(new GridLayout(1,2));
+        upperSliderPanel.add(sliderLabelVX);
+        upperSliderPanel.add(sliderLabelVY);
+
+        ballSliderInputVX = new JSlider(-10,10);
+        ballSliderInputVY = new JSlider(-10,10);
+        sliderPanel.add(ballSliderInputVX, BorderLayout.WEST);
+        sliderPanel.add(ballSliderInputVY, BorderLayout.EAST);
+        ballSliderInputVX.setOrientation(SwingConstants.VERTICAL);
+        ballSliderInputVX.setMajorTickSpacing(20);
+        ballSliderInputVX.setMinorTickSpacing(5);
+        ballSliderInputVX.setPaintTicks(true);
+        ballSliderInputVX.setPaintLabels(true);
+
+        ballSliderInputVY.setOrientation(SwingConstants.VERTICAL);
+        ballSliderInputVY.setMajorTickSpacing(20);
+        ballSliderInputVY.setMinorTickSpacing(5);
+        ballSliderInputVY.setPaintTicks(true);
+        ballSliderInputVY.setPaintLabels(true);
+
         cueRelease = new JButton(bundle.getString("cue.stroke"));
-//        strokePowerRegulationLabel = new JLabel();
+        //        strokePowerRegulationLabel = new JLabel();
 //
 //        strokePowerRegulationLabel.setPreferredSize(new Dimension(sliderPanel.getSize().width, sliderPanel.getSize().height + 50));
 
@@ -244,37 +275,41 @@ public class MainWindow extends JFrame{
 
         whiteBallVX = new JTextField("");
         whiteBallVY = new JTextField("");
-        sliderPanel.add(whiteBallVX);
-        sliderPanel.add(whiteBallVY);
-        sliderPanel.add(cueRelease);
+        sliderPanel.add(cueRelease, BorderLayout.PAGE_END);
 
-        cueRelease.addActionListener(e ->{
-            System.out.println("Stroke button works.");
-            currentPlayer = poolPanel.ballAnimation(Double.parseDouble(whiteBallVX.getText()), Double.parseDouble(whiteBallVY.getText()), playerOne, playerTwo);
-            System.out.println("MainWindow playerOneScore: " + playerOne.currentScore);
+        cueRelease.addActionListener(e -> {
+            poolPanel.ballAnimation();
         });
     }
 
-    public void createBottomLabels(){
+    public void uploadPlayerScore(int playerOneScore, int playerTwoScore) {
+        fPP.setText(String.valueOf(playerOne.currentScore));
+        sPP.setText(String.valueOf(playerTwo.currentScore));
+    }
+
+    public void createBottomLabels() {
         //Bottom labels
-        firstPlayerPoints = new JLabel(bundle.getString("bottomlabel.p1"));
-        secondPlayerPoints = new JLabel(bundle.getString("bottomlabel.p2"));
+        firstPlayerPoints = new JLabel(bundle.getString("bottomlabel.p1"), SwingConstants.CENTER);
+        secondPlayerPoints = new JLabel(bundle.getString("bottomlabel.p2"), SwingConstants.CENTER);
 
 
         //Bottom panel
-        ImageIcon originaRedBalllIcon = new ImageIcon(MainWindow.class.getResource("redBall2.png"));
-        Image scaledRedBallIcon = originaRedBalllIcon.getImage().getScaledInstance(40,40, Image.SCALE_SMOOTH);
+        ImageIcon originalRedBallIcon = new ImageIcon(MainWindow.class.getResource("redBall2.png"));
+        Image scaledRedBallIcon = originalRedBallIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
         ImageIcon redBallIcon = new ImageIcon(scaledRedBallIcon);
-        fPP = new JLabel(String.valueOf(playerOne.currentScore));
-        sPP = new JLabel(String.valueOf(playerTwo.currentScore));
-        bottomPanel.setPreferredSize(new Dimension(MainWindow.WIDTH,70));
+        fPP = new JLabel(String.valueOf(playerOne.currentScore), SwingConstants.CENTER);
+        sPP = new JLabel(String.valueOf(playerTwo.currentScore), SwingConstants.CENTER);
+        bottomPanel.setPreferredSize(new Dimension(MainWindow.WIDTH, 70));
+        bottomPanel.setLayout(new GridLayout(1,4));
         bottomPanel.add(firstPlayerPoints);
-        bottomPanel.add(secondPlayerPoints);
         bottomPanel.add(fPP);
+        bottomPanel.add(playerOneNowTurningLabel);
+        bottomPanel.add(secondPlayerPoints);
         bottomPanel.add(sPP);
+        bottomPanel.add(playerTwoNowTurningLabel);
     }
 
-    public void createLanguageMenu(){
+    public void createLanguageMenu() {
         //Language changes
         enum Language {POLISH, ENGLISH}
         AtomicReference<Language> language = new AtomicReference<>(Language.POLISH); //by default
@@ -292,16 +327,16 @@ public class MainWindow extends JFrame{
         languagePanel.add(englishButton);
 
         //Listeners
-        polishButton.addActionListener(e->{
-            if(e.getSource()==polishButton){
+        polishButton.addActionListener(e -> {
+            if (e.getSource() == polishButton) {
                 locale = Locale.forLanguageTag("pl");
                 language.set(Language.POLISH);
                 bundle = ResourceBundle.getBundle("pl.edu.pw.fizyka.pojava.bilard.messages", locale);
                 makeItInternational();
             }
         });
-        englishButton.addActionListener(e->{
-            if(e.getSource()==englishButton){
+        englishButton.addActionListener(e -> {
+            if (e.getSource() == englishButton) {
                 locale = Locale.forLanguageTag("en");
                 language.set(Language.ENGLISH);
                 bundle = ResourceBundle.getBundle("pl.edu.pw.fizyka.pojava.bilard.messages", locale);
@@ -310,7 +345,7 @@ public class MainWindow extends JFrame{
         });
     }
 
-    public void makeItInternational(){
+    public void makeItInternational() {
 
         optionsMenu.setText(bundle.getString("menu.preferences"));
         gameMenu.setText(bundle.getString("menu.gameplay"));
